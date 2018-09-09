@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="reference">
+    <CLASSES />
+    <JAVADOC>
+      <root url="file://C:/jars/xmlbeans-3.0.1/docs/reference" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/Any/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/DateTime/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/MixedContent/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/OrderMatters/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/SchemaEnum/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/Validation/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/XQueryXPath/src" />
+      <root url="file://C:/jars/xmlbeans-3.0.1/samples/XsdConfig/src" />
+    </SOURCES>
+  </library>
+</component>
