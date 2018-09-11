@@ -1,6 +1,8 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -114,23 +116,34 @@ public class JFX1 extends Application {
         TextArea log = new TextArea();
         GridPane.setConstraints(log, 0, 6, 4, 1);
 
-        sendButton.setOnAction(e -> {
-            try {
-                log.clear();
-                File addressBookFile = new File(addressbookInput.getText());
-                File folder = new File(folderInput.getText());
-                if (addressBookFile != null && folder != null) {
-                    doMailing(addressbookInput, folderInput, titleInput, bodyInput, generalProgressBar, log);
+        sendButton.setOnAction((ActionEvent e) -> {
+            Task task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    try {
+                        log.clear();
+                        File addressBookFile = new File(addressbookInput.getText());
+                        File folder = new File(folderInput.getText());
+                        if (addressBookFile != null && folder != null) {
+                            doMailing(addressbookInput, folderInput, titleInput, bodyInput, generalProgressBar, log);
+                        }
+                    } catch (
+                            IOException e1)
+
+                    {
+                        e1.printStackTrace();
+                    }  catch (
+                            MessagingException e1)
+
+                    {
+                        e1.printStackTrace();
+                    }
+
+                    return null;
                 }
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            } catch (InvalidFormatException e1) {
-                e1.printStackTrace();
-            } catch (ParseException e1) {
-                e1.printStackTrace();
-            } catch (MessagingException e1) {
-                e1.printStackTrace();
-            }
+
+            };
+            new Thread(task).start();
         });
         gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
                 sendButton, titleInput, themeLabel, fileChooserButton, generalProgressBar, folderChooserButton, log
@@ -174,33 +187,35 @@ public class JFX1 extends Application {
         Session mailSession = Session.getDefaultInstance(properties);
         Transport tr = mailSession.getTransport();
         tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
-        /*tr.sendMessage(message, message.getAllRecipients());
-        */
-
 
         for (PersonInfo personInfo : addressBookReader.list) {
             curr++;
-            bar.setProgress(curr / count);
+            System.out.println("count= " + count + " curr=" + curr + "  curr/count=" + ((float) curr / count));
+            bar.setProgress((float) curr / count);
+
             FileFinder fileFinder = new FileFinder(folder.getText());
             //System.out.println(personInfo.getEmail() + fileFinder.getPathByPattern("*" + personInfo.getSecondName() + "*" + personInfo.getFirstName() + "*" + personInfo.getPatronymic() + "*.htm*"));
             String attachedFilePath = fileFinder.getPathByPattern("*" + personInfo.getSecondName() + "*" + personInfo.getFirstName() + "*" + personInfo.getPatronymic() + "*." + fileExtension);
             logArea.appendText("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
 
-
             try {
                 if (attachedFilePath != "" && attachedFilePath != null) {
                     MailSender sender = new MailSender(tr, mailSession, emailFrom, personInfo.getEmail(), attachedFilePath, title.getText(), body.getText());
                     sender.send();
-                    logArea.appendText(" Письмо отослано успешно\n");
+                    //logArea.appendText(" Письмо отослано успешно\n");
+                    javafx.application.Platform.runLater( () ->logArea.appendText("Письмо отослано успешно\n") );
                 } else {
-                    logArea.appendText(" Не найден файл в указанной директории.\n ");
+                    //logArea.appendText(" Не найден файл в указанной директории.\n ");
+                    javafx.application.Platform.runLater( () ->logArea.appendText("Не найден файл в указанной директории. Письмо не отправлено\n") );
                 }
             } catch (Exception e) {
-                logArea.appendText("Не удалось отправить письмо. " + e.toString() +"\n");
+                //logArea.appendText("Не удалось отправить письмо. " + e.toString() + "\n");
+                javafx.application.Platform.runLater( () ->logArea.appendText("Не удалось отправить письмо. " + e.toString() + "\n") );
             }
         }
         tr.close();
-        logArea.appendText("Отправка писем закончена!\n");
+        //logArea.appendText("Отправка писем закончена!\n");
+        javafx.application.Platform.runLater( () ->logArea.appendText("Отправка писем закончена!\n") );
 
     }
 
