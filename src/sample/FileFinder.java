@@ -28,7 +28,7 @@ public class FileFinder {
     }
 
     public static void main(String[] args) {
-        File dir = new File("D:\\Расчетные листки");
+        File dir = new File("D:\\08092018");
         FileFilter fileFilter = new WildcardFileFilter("Иванов*Иван*Иванович*.htm*");
         File[] files = dir.listFiles(fileFilter);
         for (int i = 0; i < files.length; i++) {

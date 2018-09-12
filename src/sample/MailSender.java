@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.scene.control.TextArea;
 import jdk.internal.org.xml.sax.SAXException;
 
 import javax.activation.DataHandler;
@@ -29,7 +30,8 @@ public class MailSender {
     String body;
     private ArrayList<PersonInfo> list;
 
-    public MailSender(Transport transport, Session mailSession, String emailFrom, String emailTo, String attachedFilePath, String title, String body) {
+    public MailSender(Transport transport, Session mailSession, String emailFrom, String emailTo, String attachedFilePath,
+                      String title, String body, TextArea logArea) {
         this.transport = transport;
         this.mailSession = mailSession;
         this.emailFrom = emailFrom;
@@ -90,17 +92,12 @@ public class MailSender {
         Transport tr = mailSession.getTransport();
         tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
 
-        if(tr.isConnected() == true) {
-            System.out.println("connected");
-        }
-        else {
-            System.out.println("Not connected");
-        }
 
 
-       MailSender sender = new MailSender(tr, mailSession, "shsanya@yandex.ru", "shsanya@inbox.ru",
+
+       /*MailSender sender = new MailSender(tr, mailSession, "shsanya@yandex.ru", "shsanya@inbox.ru",
                "D:\\08092018\\Иванов_Иван_Иванович  _01.01.1980_РЛ_за_09_2018.htm", "тема", "боди");
-       sender.send();
+       sender.send();*/
 
     }
 

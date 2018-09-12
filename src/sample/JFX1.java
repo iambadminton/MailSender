@@ -15,9 +15,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.util.Properties;
 
@@ -98,23 +96,85 @@ public class JFX1 extends Application {
         GridPane.setConstraints(titleInput, 1, 2);
 
         Label bodyLabel = new Label("Текст письма");
-        GridPane.setConstraints(bodyLabel, 0, 3);
+        /*GridPane.setConstraints(bodyLabel, 0, 3);*/
+        GridPane.setConstraints(bodyLabel, 0, 3, 1, 2);
+
 
         TextArea bodyInput = new TextArea();
         bodyInput.setPromptText("Текст письма");
-        GridPane.setConstraints(bodyInput, 1, 3, 2, 1);
+        //GridPane.setConstraints(bodyInput, 1, 3, 2, 1);
+        GridPane.setConstraints(bodyInput, 1, 3, 1, 2);
+
+
+        /*Image loadImage = new Image(getClass().getResourceAsStream("/LOAD.png"));
+        Button loadTemplateButton = new Button("Загрузить", new ImageView(loadImage));*/
+        Button loadTemplateButton = new Button("Загрузить");
+        GridPane.setConstraints(loadTemplateButton, 2, 3);
+
 
 
         Button sendButton = new Button("Отправить");
         // sendButton.setOnAction(e -> isNumber(ageInput, ageInput.getText()));
-        GridPane.setConstraints(sendButton, 1, 4);
+        GridPane.setConstraints(sendButton, 1, 5);
 
         ProgressBar generalProgressBar = new ProgressBar(0);
 
         generalProgressBar.setMaxSize(500, 10);
-        GridPane.setConstraints(generalProgressBar, 0, 5, 4, 1);
+        GridPane.setConstraints(generalProgressBar, 0, 6, 4, 1);
         TextArea log = new TextArea();
-        GridPane.setConstraints(log, 0, 6, 4, 1);
+        GridPane.setConstraints(log, 0, 7, 4, 1);
+
+
+        Button saveTemplateButton = new Button("Cохранить");
+        GridPane.setConstraints(saveTemplateButton, 2, 4);
+        saveTemplateButton.setOnAction((ActionEvent event) -> {
+            FileChooser fileChooser = new FileChooser();
+            //Set extension filter
+            FileChooser.ExtensionFilter extFilter =
+                    new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+            fileChooser.getExtensionFilters().add(extFilter);
+            //Show save file dialog
+            File file = fileChooser.showSaveDialog(primaryStage);
+            if (file != null) {
+                if(file.getPath().contains(".txt")){
+                    File fileWithExt = new File(file.getPath());
+                    SaveTemplate(bodyInput.getText(), fileWithExt, log);
+                }
+                else {
+                    File fileWithExt = new File(file.getPath() + ".txt");
+                    SaveTemplate(bodyInput.getText(), fileWithExt, log);
+                }
+            }
+        });
+
+
+        loadTemplateButton.setOnAction((ActionEvent event) -> {
+            try {
+                FileChooser fileChooser = new FileChooser();
+                //Set extension filter
+                FileChooser.ExtensionFilter extFilter =
+                        new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+                //Show save file dialog
+                //File file = fileChooser.showSaveDialog(primaryStage);
+                File file = fileChooser.showOpenDialog(primaryStage);
+                try (BufferedReader fileOut = new BufferedReader(new InputStreamReader(new FileInputStream(file.getPath()), "Windows-1251"))) {
+                    for (String line; (line = fileOut.readLine()) != null; ) {
+                        //System.out.println(line);
+                        bodyInput.clear();
+                        bodyInput.appendText(line+"\n");
+                    }
+                }
+            /*if(file != null){
+                SaveTemplate(log.getText(), fileWithExt, log);
+            }*/
+            } catch (IOException e) {
+                log.appendText(e.getMessage());
+            } catch (Exception e) {
+                log.appendText(e.getMessage());
+            }
+        });
+
 
         sendButton.setOnAction((ActionEvent e) -> {
             Task task = new Task<Void>() {
@@ -124,42 +184,46 @@ public class JFX1 extends Application {
                         log.clear();
                         File addressBookFile = new File(addressbookInput.getText());
                         File folder = new File(folderInput.getText());
-                        if (addressBookFile != null && folder != null) {
+                        if (addressBookFile.exists() && addressBookFile.isDirectory() == false
+                                && folder.exists() && folder.isDirectory()==true) {
                             doMailing(addressbookInput, folderInput, titleInput, bodyInput, generalProgressBar, log);
                         }
-                    } catch (
-                            IOException e1)
+                        else {
+                            log.clear();
+                            log.appendText("Проверьте, правильно ли заполнены поля ");
+                        }
+                    } catch (IOException e1)
 
                     {
                         e1.printStackTrace();
-                    }  catch (
-                            MessagingException e1)
-
-                    {
+                        log.appendText(e1.getMessage());
+                    } catch (MessagingException e1) {
                         e1.printStackTrace();
+                        log.appendText(e1.getMessage());
                     }
-
                     return null;
                 }
 
             };
             new Thread(task).start();
         });
+        /*gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
+                sendButton, titleInput, themeLabel, fileChooserButton, generalProgressBar, folderChooserButton, log
+                , bodyLabel, bodyInput);*/
         gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
                 sendButton, titleInput, themeLabel, fileChooserButton, generalProgressBar, folderChooserButton, log
-                , bodyLabel, bodyInput);
+                , bodyLabel, bodyInput, loadTemplateButton, saveTemplateButton);
 
-        Scene scene = new Scene(gridPane, 700, 700);
-
+        Scene scene = new Scene(gridPane, 700, 600);
         primaryStage.setResizable(false);
         window.setScene(scene);
-
         window.show();
 
 
     }
 
-    private void doMailing(TextField addressBook, TextField folder, TextField title, TextArea body, ProgressBar bar, TextArea logArea) throws IOException, InvalidFormatException, ParseException, MessagingException {
+    private void doMailing(TextField addressBook, TextField folder, TextField title, TextArea body, ProgressBar bar,
+                           TextArea logArea) throws IOException, InvalidFormatException, ParseException, MessagingException {
 
         bar.setProgress(0);
         AddressBookReader addressBookReader = new AddressBookReader(addressBook.getText());
@@ -170,19 +234,20 @@ public class JFX1 extends Application {
         String fileExtension;
 
         Properties fileProp = new Properties();
-        fileProp.load(new FileInputStream("C:\\SpringProjects\\MailSender\\src\\sample\\file.properties"));
+        fileProp.load(new FileInputStream("file.properties"));
+        //fileProp.load(new FileInputStream("C:\\SpringProjects\\MailSender\\out\\artifacts\\MailSender_jar\\file.properties"));
         fileExtension = fileProp.getProperty("file.extension");
-        if (fileExtension == null || fileExtension == "") {
+        /*if (fileExtension == null || fileExtension == "") {
             System.out.println("fileExtension = null");
         } else {
             System.out.println("== " + fileExtension);
-        }
+        }*/
 
 
         //создадим сессию
         Properties properties = new Properties();
-        //properties.load(new FileInputStream("mail.properties")); //потом раскомментировать
-        properties.load(new FileInputStream("C:\\SpringProjects\\MailSender\\src\\sample\\mail.properties"));
+        properties.load(new FileInputStream("mail.properties")); //потом раскомментировать
+        // properties.load(new FileInputStream("C:\\SpringProjects\\MailSender\\out\\artifacts\\MailSender_jar\\mail.properties"));
         emailFrom = properties.getProperty("mail.from");
         Session mailSession = Session.getDefaultInstance(properties);
         Transport tr = mailSession.getTransport();
@@ -190,32 +255,44 @@ public class JFX1 extends Application {
 
         for (PersonInfo personInfo : addressBookReader.list) {
             curr++;
-            System.out.println("count= " + count + " curr=" + curr + "  curr/count=" + ((float) curr / count));
             bar.setProgress((float) curr / count);
 
             FileFinder fileFinder = new FileFinder(folder.getText());
-            //System.out.println(personInfo.getEmail() + fileFinder.getPathByPattern("*" + personInfo.getSecondName() + "*" + personInfo.getFirstName() + "*" + personInfo.getPatronymic() + "*.htm*"));
             String attachedFilePath = fileFinder.getPathByPattern("*" + personInfo.getSecondName() + "*" + personInfo.getFirstName() + "*" + personInfo.getPatronymic() + "*." + fileExtension);
-            logArea.appendText("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
+            /*System.out.println("attachedFilePath=" + attachedFilePath);*/
+            //logArea.appendText("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
+            String statusInfo = new String("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
 
             try {
                 if (attachedFilePath != "" && attachedFilePath != null) {
-                    MailSender sender = new MailSender(tr, mailSession, emailFrom, personInfo.getEmail(), attachedFilePath, title.getText(), body.getText());
+                    MailSender sender = new MailSender(tr, mailSession, emailFrom, personInfo.getEmail(), attachedFilePath, title.getText(), body.getText(), logArea);
                     sender.send();
                     //logArea.appendText(" Письмо отослано успешно\n");
-                    javafx.application.Platform.runLater( () ->logArea.appendText("Письмо отослано успешно\n") );
+                    javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Письмо отослано успешно\n"));
                 } else {
                     //logArea.appendText(" Не найден файл в указанной директории.\n ");
-                    javafx.application.Platform.runLater( () ->logArea.appendText("Не найден файл в указанной директории. Письмо не отправлено\n") );
+                    javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Не найден файл в указанной директории. Письмо не отправлено\n"));
                 }
             } catch (Exception e) {
                 //logArea.appendText("Не удалось отправить письмо. " + e.toString() + "\n");
-                javafx.application.Platform.runLater( () ->logArea.appendText("Не удалось отправить письмо. " + e.toString() + "\n") );
+                javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Не удалось отправить письмо. " + e.toString() + "\n"));
             }
         }
         tr.close();
         //logArea.appendText("Отправка писем закончена!\n");
-        javafx.application.Platform.runLater( () ->logArea.appendText("Отправка писем закончена!\n") );
+        javafx.application.Platform.runLater(() -> logArea.appendText("Отправка писем закончена!\n"));
+
+    }
+
+    private void SaveTemplate(String content, File file, TextArea logArea) {
+        try {
+            FileWriter fileWriter;
+            fileWriter = new FileWriter(file);
+            fileWriter.write(content);
+            fileWriter.close();
+        } catch (IOException ex) {
+            logArea.appendText(ex.getMessage());
+        }
 
     }
 
