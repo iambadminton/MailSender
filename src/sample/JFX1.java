@@ -10,6 +10,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import javax.mail.MessagingException;
@@ -112,7 +113,6 @@ public class JFX1 extends Application {
         GridPane.setConstraints(loadTemplateButton, 2, 3);
 
 
-
         Button sendButton = new Button("Отправить");
         // sendButton.setOnAction(e -> isNumber(ageInput, ageInput.getText()));
         GridPane.setConstraints(sendButton, 1, 5);
@@ -136,11 +136,10 @@ public class JFX1 extends Application {
             //Show save file dialog
             File file = fileChooser.showSaveDialog(primaryStage);
             if (file != null) {
-                if(file.getPath().contains(".txt")){
+                if (file.getPath().contains(".txt")) {
                     File fileWithExt = new File(file.getPath());
                     SaveTemplate(bodyInput.getText(), fileWithExt, log);
-                }
-                else {
+                } else {
                     File fileWithExt = new File(file.getPath() + ".txt");
                     SaveTemplate(bodyInput.getText(), fileWithExt, log);
                 }
@@ -162,7 +161,7 @@ public class JFX1 extends Application {
                     for (String line; (line = fileOut.readLine()) != null; ) {
                         //System.out.println(line);
                         bodyInput.clear();
-                        bodyInput.appendText(line+"\n");
+                        bodyInput.appendText(line + "\n");
                     }
                 }
             /*if(file != null){
@@ -185,10 +184,9 @@ public class JFX1 extends Application {
                         File addressBookFile = new File(addressbookInput.getText());
                         File folder = new File(folderInput.getText());
                         if (addressBookFile.exists() && addressBookFile.isDirectory() == false
-                                && folder.exists() && folder.isDirectory()==true) {
+                                && folder.exists() && folder.isDirectory() == true) {
                             doMailing(addressbookInput, folderInput, titleInput, bodyInput, generalProgressBar, log);
-                        }
-                        else {
+                        } else {
                             log.clear();
                             log.appendText("Проверьте, правильно ли заполнены поля ");
                         }
@@ -215,7 +213,45 @@ public class JFX1 extends Application {
                 , bodyLabel, bodyInput, loadTemplateButton, saveTemplateButton);
 
         Scene scene = new Scene(gridPane, 700, 600);
+
+
         primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest((WindowEvent e) -> {
+            System.out.println("А мы выходим!!!");
+            System.out.println(addressbookInput.getText());
+            State state = new State(addressbookInput.getText(), folderInput.getText(), titleInput.getText(), bodyInput.getText());
+            try {
+                FileOutputStream fileOut = new FileOutputStream("State.ser");
+                ObjectOutputStream stream = new ObjectOutputStream(fileOut);
+                stream.writeObject(state);
+            } catch (IOException ex) {
+                log.appendText(ex.getMessage());
+            }
+
+        });
+
+        primaryStage.setOnShowing((WindowEvent event) -> {
+            try {
+                File file = new File("State.ser");
+                if (file.exists()) {
+                    FileInputStream stream = new FileInputStream(file);
+                    ObjectInputStream inputStream = new ObjectInputStream(stream);
+                    State state = (State) inputStream.readObject();
+                    inputStream.close();
+                    addressbookInput.setText(state.getAddressbookInput());
+                    folderInput.setText(state.getFolderInput());
+                    titleInput.setText(state.getTitleInput());
+                    bodyInput.setText(state.getBodyInput());
+                }
+
+            } catch (ClassNotFoundException ex1) {
+                log.appendText(ex1.getMessage());
+            } catch (IOException ex) {
+                log.appendText("Ошибка инициализации " + ex.getMessage() + " " + ex.getLocalizedMessage() );
+                ex.printStackTrace();
+            }
+        });
+
         window.setScene(scene);
         window.show();
 
