@@ -298,13 +298,14 @@ public class JFX1 extends Application {
             /*System.out.println("attachedFilePath=" + attachedFilePath);*/
             //logArea.appendText("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
             String statusInfo = new String("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
-            successful++;
+
             try {
                 if (attachedFilePath != "" && attachedFilePath != null) {
                     MailSender sender = new MailSender(tr, mailSession, emailFrom, personInfo.getEmail(), attachedFilePath, title.getText(), body.getText(), logArea);
                     sender.send();
                     //logArea.appendText(" Письмо отослано успешно\n");
                     javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Письмо отослано успешно\n"));
+                    successful++;
                 } else {
                     //logArea.appendText(" Не найден файл в указанной директории.\n ");
                     javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "!!! Не найден файл в указанной директории. Письмо не отправлено\n"));
