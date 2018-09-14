@@ -205,19 +205,18 @@ public class JFX1 extends Application {
             };
             new Thread(task).start();
         });
-        /*gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
+/*        gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
                 sendButton, titleInput, themeLabel, fileChooserButton, generalProgressBar, folderChooserButton, log
-                , bodyLabel, bodyInput);*/
+                , bodyLabel, bodyInput, loadTemplateButton, saveTemplateButton);*/
         gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
                 sendButton, titleInput, themeLabel, fileChooserButton, generalProgressBar, folderChooserButton, log
-                , bodyLabel, bodyInput, loadTemplateButton, saveTemplateButton);
+                , bodyLabel, bodyInput);
 
         Scene scene = new Scene(gridPane, 700, 600);
 
 
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest((WindowEvent e) -> {
-            System.out.println("А мы выходим!!!");
             System.out.println(addressbookInput.getText());
             State state = new State(addressbookInput.getText(), folderInput.getText(), titleInput.getText(), bodyInput.getText());
             try {
@@ -266,6 +265,7 @@ public class JFX1 extends Application {
         addressBookReader.read();
         int count = addressBookReader.list.size();
         int curr = 0;
+        int successful = 0;
         String emailFrom;
         String fileExtension;
 
@@ -294,11 +294,11 @@ public class JFX1 extends Application {
             bar.setProgress((float) curr / count);
 
             FileFinder fileFinder = new FileFinder(folder.getText());
-            String attachedFilePath = fileFinder.getPathByPattern("*" + personInfo.getSecondName() + "*" + personInfo.getFirstName() + "*" + personInfo.getPatronymic() + "*." + fileExtension);
+            String attachedFilePath = fileFinder.getPathByPattern(personInfo.getSecondName() + "_" + personInfo.getFirstName() + "_" + personInfo.getPatronymic() + "*." + fileExtension);
             /*System.out.println("attachedFilePath=" + attachedFilePath);*/
             //logArea.appendText("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
             String statusInfo = new String("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
-
+            successful++;
             try {
                 if (attachedFilePath != "" && attachedFilePath != null) {
                     MailSender sender = new MailSender(tr, mailSession, emailFrom, personInfo.getEmail(), attachedFilePath, title.getText(), body.getText(), logArea);
@@ -307,16 +307,17 @@ public class JFX1 extends Application {
                     javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Письмо отослано успешно\n"));
                 } else {
                     //logArea.appendText(" Не найден файл в указанной директории.\n ");
-                    javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Не найден файл в указанной директории. Письмо не отправлено\n"));
+                    javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "!!! Не найден файл в указанной директории. Письмо не отправлено\n"));
                 }
             } catch (Exception e) {
                 //logArea.appendText("Не удалось отправить письмо. " + e.toString() + "\n");
-                javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Не удалось отправить письмо. " + e.toString() + "\n"));
+                javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "!!! Не удалось отправить письмо. " + e.toString() + "\n"));
             }
         }
         tr.close();
         //logArea.appendText("Отправка писем закончена!\n");
-        javafx.application.Platform.runLater(() -> logArea.appendText("Отправка писем закончена!\n"));
+        int finalSuccessful = successful;
+        javafx.application.Platform.runLater(() -> logArea.appendText("Отправка писем закончена! Отослано успешно " + finalSuccessful + " писем из " + count + " адресов\n"));
 
     }
 
