@@ -86,8 +86,7 @@ public class MailSender {
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException,
             XMLStreamException, TransformerException, MessagingException {
         Properties properties = new Properties();
-        //properties.load(new FileInputStream("mail.properties")); //потом раскомментировать
-        properties.load(new FileInputStream("C:\\SpringProjects\\MailSender\\src\\sample\\mail.properties"));
+        properties.load(new FileInputStream("mail.properties")); //потом раскомментировать
         Session mailSession = Session.getDefaultInstance(properties);
         Transport tr = mailSession.getTransport();
         tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));

@@ -177,7 +177,7 @@ public class JFX1 extends Application {
             }
         });
 
-        Text versionText = new Text("version 1.2");
+        Text versionText = new Text("version 1.3");
         GridPane.setConstraints(versionText, 0, 8);
 
         GridPane.setConstraints(saveLogButton, 2, 7);
@@ -334,7 +334,11 @@ public class JFX1 extends Application {
         AddressBookReader addressBookReader = new AddressBookReader(addressBook.getText(), personsInfoArray);
 
         Properties fileProp = new Properties();
-        fileProp.load(new FileInputStream("files.properties"));
+        try {
+            fileProp.load(new FileInputStream("files.properties"));
+        } catch (IOException e) {
+            javafx.application.Platform.runLater(() -> logArea.appendText("Ошибка чтения файла files.properties: " + e.getMessage()));
+        }
         //fileProp.load(new FileInputStream("C:\\SpringProjects\\MailSender\\out\\artifacts\\MailSender_jar\\files.properties")); // @3TODO: закомментировать
         fileExtension = fileProp.getProperty("file.extension");
         initRowTypeMap(fileProp); // проинициализировали this.addressbookRowsTypeMap из файла file.properties
@@ -349,12 +353,15 @@ public class JFX1 extends Application {
 
         //создадим сессию
         Properties properties = new Properties();
-        properties.load(new FileInputStream("C:\\SpringProjects\\MailSender\\out\\artifacts\\MailSender_jar\\mail.properties"));
+        try {
+            properties.load(new FileInputStream("mail.properties"));
+        } catch (IOException e) {
+            javafx.application.Platform.runLater(() -> logArea.appendText("Ошибка чтения файла mail.properties: " + e.getMessage()));
+        }
         emailFrom = properties.getProperty("mail.from");
         Session mailSession = Session.getDefaultInstance(properties);
         Transport tr = mailSession.getTransport();
         tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
-
 
         for (HashMap<String, String> concrtePerson : addressBookReader.list) {
 
@@ -362,11 +369,14 @@ public class JFX1 extends Application {
             bar.setProgress((float) curr / count);
 
             FileFinder fileFinder = new FileFinder(folder.getText());
-            //String attachedFilePath = fileFinder.getPathByPattern(personInfo.getSecondName() + "_" + personInfo.getFirstName() + "_" + personInfo.getPatronymic() + "*." + fileExtension);
             String attachedFilePath = fileFinder.getPathByPattern(getDesiredFileName(concrtePerson) + "*." + fileExtension);
-
-            //logArea.appendText("Письмо для " + personInfo.getSecondName() + " " + personInfo.getFirstName() + " " + personInfo.getPatronymic() + " по адресу: " + personInfo.email + "\n");
-            String statusInfo = "Письмо для " + getDescribeOfPerson(concrtePerson, " ") + " по адресу: " + getPersonEmail(concrtePerson) + "\n";
+            String personEmail = null;
+            try {
+                personEmail = getPersonEmail(concrtePerson);
+            } catch (CorruptedEmailAddressException e) {
+                javafx.application.Platform.runLater(() -> logArea.appendText(e.getMessage()));
+            }
+            String statusInfo = "Письмо для " + getDescribeOfPerson(concrtePerson, " ") + " по адресу: " + personEmail + "\n";
 
             try {
                 if (attachedFilePath != "" && attachedFilePath != null) {
@@ -426,11 +436,17 @@ public class JFX1 extends Application {
         return result;
     }
 
-    private String getPersonEmail(HashMap<String, String> personInfo) {
+    private String getPersonEmail(HashMap<String, String> personInfo) throws CorruptedEmailAddressException {
         String result = new String();
+        boolean isValid;
+        EmailValidator validator = new EmailValidator();
         TreeMap<String, String> sortedMap = new TreeMap<>(personInfo);
         for (Map.Entry<String, String> entry : sortedMap.entrySet()) {
             result = entry.getValue();
+        }
+        isValid = validator.validate(result);
+        if(isValid == false) {
+            throw new CorruptedEmailAddressException("Ошибка: " + result + " не является валидным email-адресом. Необходимо исправить данные в адресной книге.");
         }
         return result;
     }
@@ -455,7 +471,6 @@ public class JFX1 extends Application {
         string.deleteCharAt(lastPos);
         return string.toString();
     }
-
 
     public void showTrafficLight(String image) {
         try {

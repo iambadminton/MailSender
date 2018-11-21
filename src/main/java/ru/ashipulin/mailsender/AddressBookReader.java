@@ -155,7 +155,7 @@ public class AddressBookReader {
 
     public static void main(String[] args) throws InvalidFormatException, IOException {
         ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
-        AddressBookReader reader = new AddressBookReader("D:\\Строев\\Расчетные листки\\Адресная книга - копия.xlsx", arrayList);
+        AddressBookReader reader = new AddressBookReader("Адресная книга - копия.xlsx", arrayList);
         HashMap<String, String> predefinedRowsTypeMap = new HashMap<>();
         predefinedRowsTypeMap.put("file.field1.type", "String");
         predefinedRowsTypeMap.put("file.field2.type", "String");

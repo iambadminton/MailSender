@@ -3,42 +3,42 @@
     <output-path>$PROJECT_DIR$/out/artifacts/MailSender_jar</output-path>
     <root id="archive" name="MailSender.jar">
       <element id="module-output" name="MailSender" />
-      <element id="extracted-dir" path="C:/jars/javamail-1.4.5/mail.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/javax/mail/mail/1.4/mail-1.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.6.2/gson-2.6.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/xmlbeans/xmlbeans/3.0.1/xmlbeans-3.0.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/xbean.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/resolver.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/xmlpublic.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/xbean_xpath.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.10/commons-codec-1.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-collections4-4.2/commons-collections4-4.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-collections4-4.2/commons-collections4-4.2-tests.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-collections4-4.2/commons-collections4-4.2-javadoc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-collections4-4.2/commons-collections4-4.2-sources.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-collections4-4.2/commons-collections4-4.2-test-sources.jar" path-in-jar="/" />
+      <element id="library" level="project" name="reference" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/poi/ooxml-schemas/1.0/ooxml-schemas-1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/jars/javamail-1.4.5/mail.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/commons/commons-collections4/4.2/commons-collections4-4.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-io-2.6/commons-io-2.6.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-io-2.6/commons-io-2.6-tests.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-io-2.6/commons-io-2.6-javadoc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-io-2.6/commons-io-2.6-sources.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/commons-io-2.6/commons-io-2.6-test-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/poi/poi/3.17/poi-3.17.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-io/commons-io/2.0/commons-io-2.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/poi/ooxml-schemas/1.0/ooxml-schemas-1.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/commons/commons-collections4/4.2/commons-collections4-4.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/sax/sax/2.0.1/sax-2.0.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-codec/commons-codec/1.10/commons-codec-1.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/gson-2.6.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/3.5-beta5/poi-ooxml-3.5-beta5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-io/commons-io/2.0/commons-io-2.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/poi-3.17/poi-3.17.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/poi-3.17/poi-ooxml-3.17.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/poi-3.17/poi-examples-3.17.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/poi-3.17/poi-excelant-3.17.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/poi-3.17/poi-scratchpad-3.17.jar" path-in-jar="/" />
       <element id="extracted-dir" path="C:/jars/poi-3.17/poi-ooxml-schemas-3.17.jar" path-in-jar="/" />
-      <element id="library" level="project" name="reference" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/poi/poi-ooxml/3.5-beta5/poi-ooxml-3.5-beta5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/javax/activation/activation/1.1/activation-1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/sax/sax/2.0.1/sax-2.0.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/xbean.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/resolver.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/xmlpublic.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="C:/jars/xmlbeans-3.0.1/lib/xbean_xpath.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/javax/mail/mail/1.4/mail-1.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/xmlbeans/xmlbeans/3.0.1/xmlbeans-3.0.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
