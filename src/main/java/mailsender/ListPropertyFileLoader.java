@@ -1,13 +1,18 @@
-package ru.ashipulin.mailsender;
+package mailsender;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Sanya on 27.10.2018.
  */
 public class ListPropertyFileLoader {
+    ArrayList<String> existFiles;
+    private String pattern;
+
+
     public static void main(String[] args) {
         try {
             Properties properties = new Properties();
@@ -18,8 +23,10 @@ public class ListPropertyFileLoader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
     }
+
+
+
+
+
 }

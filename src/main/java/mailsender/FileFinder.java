@@ -1,4 +1,4 @@
-package ru.ashipulin.mailsender;
+package mailsender;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 

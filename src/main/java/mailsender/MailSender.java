@@ -1,4 +1,4 @@
-package ru.ashipulin.mailsender;
+package mailsender;
 
 import javafx.scene.control.TextArea;
 import jdk.internal.org.xml.sax.SAXException;
@@ -41,14 +41,22 @@ public class MailSender {
         this.body = body;
     }
 
+    public MailSender(Transport transport, Session mailSession, String emailFrom, String emailTo, String attachedFilePath,
+                      String title, String body) {
+        this.transport = transport;
+        this.mailSession = mailSession;
+        this.emailFrom = emailFrom;
+        this.emailTo = emailTo;
+        this.title = title;
+        this.body = body;
+        this.attachedFilePath = attachedFilePath;
+    }
+
     public void send() throws IOException, MessagingException {
         final Properties properties = new Properties();
 
-
-        //properties.load(new FileInputStream("mail.properties"));
         MimeMessage message = new MimeMessage(this.mailSession);
 
-        //message.setFrom(new InternetAddress(properties.getProperty("mail.from")));
         message.setFrom(new InternetAddress(this.emailFrom));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(this.emailTo));
         message.setSubject(this.title);
@@ -61,7 +69,6 @@ public class MailSender {
         Path p = Paths.get(this.attachedFilePath);
         String file = p.getFileName().toString();
 
-        //messageBodyPart.setFileName(MimeUtility.encodeText("Иванов_Иван_Иванович  _01.01.1980_РЛ_за_09_2018.htm", "UTF-8", null));
         messageBodyPart.setFileName(MimeUtility.encodeText(file, "UTF-8", null));
         messageBodyPart.setText(this.body);
 
@@ -69,36 +76,27 @@ public class MailSender {
         multipart.addBodyPart(messageBodyPart);
         MimeBodyPart messageBodyPart2 = new MimeBodyPart();
 
-        //messageBodyPart2.setText(file, "UTF-8", "html"); // =======
         messageBodyPart2.setText(this.body, "UTF-8", "html");
         messageBodyPart2.setContent(this.body, "text/html; charset=utf-8");
         multipart.addBodyPart(messageBodyPart2);
         message.setContent(multipart);
 
-        /*Transport tr = mailSession.getTransport();
-        System.out.println(tr.getURLName());
-        tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
-        tr.sendMessage(message, message.getAllRecipients());
-        tr.close();*/
         this.transport.sendMessage(message, message.getAllRecipients());
     }
 
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException,
             XMLStreamException, TransformerException, MessagingException {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream("mail.properties")); //потом раскомментировать
-        Session mailSession = Session.getDefaultInstance(properties);
-        Transport tr = mailSession.getTransport();
-        tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
+        // Use with parameters:
+        // java -cp MailSender.jar mailsender.mailsender.MailSender email, path_to_file, theme_text, body_text
 
+        //try {
+            Properties properties = new Properties();
+            properties.load(new FileInputStream("mail.properties")); //потом раскомментировать
+            Session mailSession = Session.getDefaultInstance(properties);
+            Transport tr = mailSession.getTransport();
+            tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
 
-
-
-       /*MailSender sender = new MailSender(tr, mailSession, "shsanya@yandex.ru", "shsanya@inbox.ru",
-               "D:\\08092018\\Иванов_Иван_Иванович  _01.01.1980_РЛ_за_09_2018.htm", "тема", "боди");
-       sender.send();*/
-
+            MailSender mailSender = new MailSender(tr, mailSession, properties.getProperty("mail.from"), args[0], args[1], args[2], args[3]);
+            mailSender.send();
     }
-
-
 }

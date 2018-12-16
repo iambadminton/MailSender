@@ -1,4 +1,4 @@
-package ru.ashipulin.mailsender;
+package mailsender;
 
 /**
  * Created by Sanya on 17.11.2018.

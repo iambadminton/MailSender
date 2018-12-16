@@ -1,4 +1,4 @@
-package ru.ashipulin.mailsender;
+package mailsender;
 
 import javafx.application.Application;
 import javafx.concurrent.Task;
@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -43,6 +45,8 @@ public class JFX1 extends Application {
     private final String EMPTY_IMAGE = "empty.png";
     private final String SILHOUETTE_IMAGE = "silhouette.png";
     private Date lastDateOfSending;
+    private ArrayList<String> sentFiles = new ArrayList<>();
+    private ArrayList<String> allFiles;
 
     public static void main(String[] args) {
         launch(args);
@@ -98,21 +102,19 @@ public class JFX1 extends Application {
         folderInput.setPromptText("Укажите папку с РЛ");
         GridPane.setConstraints(folderInput, 1, 1);
         folderInput.setEditable(false);
+        ArrayList allExistFiles = new ArrayList();
 
         Button folderChooserButton = new Button("Выбрать папку с РЛ");
         folderChooserButton.setOnAction(event -> {
-            File file = folderChooser.showDialog(primaryStage);
-            folderInput.setText(file != null ? file.getPath().toString() : "");
-        });
-        /*root.setCenter(fileChooserButton);*/
+                    File file = folderChooser.showDialog(primaryStage);
+                    folderInput.setText(file != null ? file.getPath().toString() : "");
+                }
+        );
+
         GridPane.setConstraints(folderChooserButton, 2, 1);
 
         Button logSaverButton = new Button("Сохранить лог");
         logSaverButton.setOnAction(event -> {
-            /*SimpleDateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy hh:mm");
-            Date now = new Date();
-            System.out.println(dateFormat.format(now));
-            folderSaveLogChooser.setInitialDirectory(new File("c:\\Лог_отправки_"+ dateFormat.format(now) + ".txt"));*/
             File file = folderSaveLogChooser.showDialog(primaryStage);
         });
 
@@ -129,7 +131,6 @@ public class JFX1 extends Application {
 
         TextArea bodyInput = new TextArea();
         bodyInput.setPromptText("Текст письма");
-        //GridPane.setConstraints(bodyInput, 1, 3, 2, 1);
         GridPane.setConstraints(bodyInput, 1, 3, 1, 2);
 
         Button loadTemplateButton = new Button("Загрузить");
@@ -158,9 +159,6 @@ public class JFX1 extends Application {
             //Set extension filter
             FileChooser.ExtensionFilter extFilter =
                     new FileChooser.ExtensionFilter("LOG files (*.log)", "*.log");
-            /*addressbookChooser.setTitle("Открыть папку");
-            addressbookChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel files", "*.xlsx"),
-                    new FileChooser.ExtensionFilter("Excel files 97-2003", "*.xls"));*/
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss");
             fileChooser.setInitialFileName("Лог_отправки_" + dateFormat.format(this.lastDateOfSending));
             fileChooser.getExtensionFilters().add(extFilter);
@@ -177,11 +175,9 @@ public class JFX1 extends Application {
             }
         });
 
-        Text versionText = new Text("version 1.3");
+        Text versionText = new Text("version 1.4");
         GridPane.setConstraints(versionText, 0, 8);
-
         GridPane.setConstraints(saveLogButton, 2, 7);
-
 
         loadTemplateButton.setOnAction((ActionEvent event) -> {
             try {
@@ -190,19 +186,13 @@ public class JFX1 extends Application {
                 FileChooser.ExtensionFilter extFilter =
                         new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
                 fileChooser.getExtensionFilters().add(extFilter);
-                //Show save file dialog
-                //File file = fileChooser.showSaveDialog(primaryStage);
                 File file = fileChooser.showOpenDialog(primaryStage);
                 try (BufferedReader fileOut = new BufferedReader(new InputStreamReader(new FileInputStream(file.getPath()), "Windows-1251"))) {
                     for (String line; (line = fileOut.readLine()) != null; ) {
-                        //System.out.println(line);
                         bodyInput.clear();
                         bodyInput.appendText(line + "\n");
                     }
                 }
-            /*if(file != null){
-                SaveTemplate(log.getText(), fileWithExt, log);
-            }*/
             } catch (IOException e) {
                 logTextArea.appendText(e.getMessage());
             } catch (Exception e) {
@@ -210,10 +200,9 @@ public class JFX1 extends Application {
             }
         });
 
-
         sendButton.setOnAction((ActionEvent e) -> {
+            sendButton.setDisable(true);
             saveLogButton.setDisable(true);
-            //showTrafficLight(SILHOUETTE_IMAGE);
             ImageView imageView = this.imageView;
             try {
                 this.imageView.setImage(new Image(new File(IMAGE_FOLDER + SILHOUETTE_IMAGE).toURI().toURL().toString()));
@@ -229,14 +218,13 @@ public class JFX1 extends Application {
                         logTextArea.clear();
                         File addressBookFile = new File(addressbookInput.getText());
                         File folder = new File(folderInput.getText());
-
-
                         if (addressBookFile.exists() && addressBookFile.isDirectory() == false
                                 && folder.exists() && folder.isDirectory() == true) {
                             doMailing(addressbookInput, folderInput, titleInput, bodyInput, generalProgressBar, logTextArea);
                             SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.YYYY hh:mm");
                             Date now = new Date();
                             saveLogButton.setDisable(false);
+                            sendButton.setDisable(false);
 
                         } else {
                             logTextArea.clear();
@@ -244,8 +232,6 @@ public class JFX1 extends Application {
                             imageView.setImage(new Image(new File(IMAGE_FOLDER + RED_IMAGE).toURI().toURL().toString()));
 
                         }
-
-
                     } catch (IOException e1) {
                         e1.printStackTrace();
                         logTextArea.appendText(e1.getMessage());
@@ -263,14 +249,26 @@ public class JFX1 extends Application {
                             e0.printStackTrace();
                         }
                     }
+                    saveLogButton.setDisable(false);
+                    sendButton.setDisable(false);
                     return null;
                 }
 
             };
-            new Thread(task).start();
 
+            new Thread(task).start();
             Date now = new Date();
             this.lastDateOfSending = now;
+
+            // загрузим список всех файлов в директории
+
+            try {
+                ListFilesLoader curLoader = new ListFilesLoader(new File(folderInput.getText()));
+                curLoader.load();
+                this.allFiles = curLoader.getFilesArray();
+            } catch (Exception e1) {
+                logTextArea.appendText("Ошибка чтения файлов в указанной папке: " + e1.getMessage());
+            }
         });
 
         gridPane.getChildren().addAll(addressbookInput, addressbookLabel, folderInput, directoryLabel,
@@ -306,7 +304,6 @@ public class JFX1 extends Application {
                     titleInput.setText(state.getTitleInput());
                     bodyInput.setText(state.getBodyInput());
                 }
-
             } catch (ClassNotFoundException ex1) {
                 logTextArea.appendText(ex1.getMessage());
             } catch (IOException ex) {
@@ -328,43 +325,37 @@ public class JFX1 extends Application {
         int successful = 0;
         String emailFrom;
         String fileExtension;
-
         bar.setProgress(0);
         ArrayList<HashMap<String, String>> personsInfoArray = new ArrayList<>(); //
         AddressBookReader addressBookReader = new AddressBookReader(addressBook.getText(), personsInfoArray);
-
         Properties fileProp = new Properties();
         try {
             fileProp.load(new FileInputStream("files.properties"));
         } catch (IOException e) {
             javafx.application.Platform.runLater(() -> logArea.appendText("Ошибка чтения файла files.properties: " + e.getMessage()));
         }
-        //fileProp.load(new FileInputStream("C:\\SpringProjects\\MailSender\\out\\artifacts\\MailSender_jar\\files.properties")); // @3TODO: закомментировать
         fileExtension = fileProp.getProperty("file.extension");
         initRowTypeMap(fileProp); // проинициализировали this.addressbookRowsTypeMap из файла file.properties
 
-/*        for (Map.Entry<String, String> entry : this.addressbookRowsTypeMap.entrySet()) {
-            System.out.println(entry.getKey() + "=" + entry.getValue());
-        }*/
-
 
         addressBookReader.read(this.addressbookRowsTypeMap);
-        int count = addressBookReader.list.size();
+        int count = addressBookReader.addressBook.size();
 
         //создадим сессию
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream("mail.properties"));
+
         } catch (IOException e) {
             javafx.application.Platform.runLater(() -> logArea.appendText("Ошибка чтения файла mail.properties: " + e.getMessage()));
         }
         emailFrom = properties.getProperty("mail.from");
         Session mailSession = Session.getDefaultInstance(properties);
         Transport tr = mailSession.getTransport();
+
         tr.connect(properties.getProperty("mail.smtps.user"), properties.getProperty("mail.smtps.password"));
 
-        for (HashMap<String, String> concrtePerson : addressBookReader.list) {
-
+        for (HashMap<String, String> concrtePerson : addressBookReader.addressBook) {
             curr++;
             bar.setProgress((float) curr / count);
 
@@ -376,41 +367,51 @@ public class JFX1 extends Application {
             } catch (CorruptedEmailAddressException e) {
                 javafx.application.Platform.runLater(() -> logArea.appendText(e.getMessage()));
             }
-            String statusInfo = "Письмо для " + getDescribeOfPerson(concrtePerson, " ") + " по адресу: " + personEmail + "\n";
-
+            String statusInfo = "Письмо для " + getDescribeOfPerson(concrtePerson, " ") + " по адресу: " + personEmail + ":  ";
             try {
                 if (attachedFilePath != "" && attachedFilePath != null) {
                     MailSender sender = new MailSender(tr, mailSession, emailFrom, getPersonEmail(concrtePerson), attachedFilePath, title.getText(), body.getText(), logArea);
                     sender.send();
-                    //logArea.appendText(" Письмо отослано успешно\n");
                     javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "Письмо отослано успешно\n"));
                     successful++;
+                    this.sentFiles.add(attachedFilePath);
                 } else {
-                    //logArea.appendText(" Не найден файл в указанной директории.\n ");
                     javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "!!! Не найден файл в указанной директории. Письмо не отправлено\n"));
                 }
             } catch (Exception e) {
-                //logArea.appendText("Не удалось отправить письмо. " + e.toString() + "\n");
                 javafx.application.Platform.runLater(() -> logArea.appendText(statusInfo + "!!! Не удалось отправить письмо. " + e.toString() + "\n"));
             }
         }
-
         tr.close();
-        //logArea.appendText("Отправка писем закончена!\n");
-        int finalSuccessful = successful;
-        javafx.application.Platform.runLater(() -> logArea.appendText("Отправка писем закончена! Отослано успешно " + finalSuccessful + " писем из " + count + " адресов\n"));
 
-        String imageName = "";
-        if (finalSuccessful == 0) {
-            imageName = RED_IMAGE;
-        } else if (finalSuccessful == count) {
-            imageName = GREEN_IMAGE;
-        } else {
-            imageName = YELLOW_IMAGE;
+        // выведем ошибки чтения адресной книги в лог
+        for (int ii = 0; ii < addressBookReader.errors.size(); ii++) {
+            int errorNumber = ii;
+            javafx.application.Platform.runLater(() -> logArea.appendText(addressBookReader.errors.get(errorNumber) + "\n"));
         }
 
+        HashSet<String> allFilesSet = new HashSet<String>(this.allFiles);
+        allFilesSet.removeAll(this.sentFiles);
+
+        for (String fileStr : allFilesSet) {
+            javafx.application.Platform.runLater(() -> logArea.appendText("Не отправлен файл(не указан адресат) " + fileStr.substring(fileStr.lastIndexOf(File.separator) + 1) + "\n"));
+        }
+
+        //logArea.appendText("Отправка писем закончена!\n");
+        int finalSuccessful = successful;
+        javafx.application.Platform.runLater(() -> {
+            logArea.appendText("Отправка писем закончена! Отослано успешно " + finalSuccessful + " писем из " + count + " адресов\n");
+            if (allFilesSet.size() == 0) {
+                logArea.appendText("Файлов в выбранной папке, для которых не был указан адресат, не найдено.\n");
+            } else {
+                logArea.appendText("Файлов в выбранной папке, для которых не был указан адресат, всего: " + allFilesSet.size() + " шт.\n");
+            }
+        });
+
+
+        String imageName = getVisualSignal(finalSuccessful, allFilesSet.size(), count);
         this.imageView.setImage(new Image(new File(IMAGE_FOLDER + imageName).toURI().toURL().toString()));
-        //showTrafficLight(imageName);
+
 
     }
 
@@ -427,7 +428,15 @@ public class JFX1 extends Application {
     }
 
     private void initRowTypeMap(Properties properties) {
-        Map<String, String> result = properties.entrySet().stream().collect(Collectors.toMap(e -> (String) e.getKey(), e -> (String) e.getValue()));
+        Map<String, String> map = properties.entrySet().stream().collect(Collectors.toMap(e -> (String) e.getKey(), e -> (String) e.getValue()));
+        Map<String, String> result = new HashMap<>();
+        Pattern pattern = Pattern.compile("excel.field[0-9]+.type");
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Matcher matcher = pattern.matcher(entry.getKey());
+            if (matcher.matches()) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
         this.addressbookRowsTypeMap = (HashMap<String, String>) result;
     }
 
@@ -445,7 +454,7 @@ public class JFX1 extends Application {
             result = entry.getValue();
         }
         isValid = validator.validate(result);
-        if(isValid == false) {
+        if (isValid == false) {
             throw new CorruptedEmailAddressException("Ошибка: " + result + " не является валидным email-адресом. Необходимо исправить данные в адресной книге.");
         }
         return result;
@@ -473,12 +482,27 @@ public class JFX1 extends Application {
     }
 
     public void showTrafficLight(String image) {
+
         try {
             this.trafficLightResultImage = new Image(new File(IMAGE_FOLDER + image).toURI().toURL().toString());
             this.imageView = new ImageView(trafficLightResultImage);
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getVisualSignal(int sentCount, int notSentCount, int allEcxelItemsCount) {
+        String imageName = "";
+        if (sentCount == 0) {
+            imageName = RED_IMAGE;
+
+        } else if (sentCount == allEcxelItemsCount && notSentCount == 0) {
+            imageName = GREEN_IMAGE;
+        } else {
+            imageName = YELLOW_IMAGE;
+        }
+        return imageName;
     }
 
 
